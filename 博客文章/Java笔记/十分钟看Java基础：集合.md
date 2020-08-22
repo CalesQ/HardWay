@@ -151,6 +151,7 @@ Hashtable和HashMap有几个主要的不同：线程安全以及速度。仅在�
 1. Hashmap -> 数组+链表<br />
  - key-> key.hashcode() % 数组大小 -> 得到数组下标, 当得到的下标的数组有值了，就引入单向链表。插入到头部快。
  - 数组中存的是Entry的引用，Entry是K-V的实体, Entry数组
+ - JDK1.7用的是头插法，而JDK1.8及之后使用的都是尾插法，那么他们为什么要这样做呢？因为JDK1.7是用单链表进行的纵向延伸，当采用头插法就是能够提高插入的效率，但是也会容易出现逆序且环形链表死循环问题。但是在JDK1.8之后是因为加入了红黑树使用尾插法，能够避免出现逆序且链表死循环的问题。
  - 线程不安全
  - hashtable中添加了synchronized，加锁
 
@@ -158,6 +159,7 @@ Hashtable和HashMap有几个主要的不同：线程安全以及速度。仅在�
  - 数组中存的是分段锁segment,segment里面存的是hashentry(和entry一样)数组，
 每个segment继承了可重入锁ReentrantLock，也可以控制锁，几个元素可以共享一把锁。
 ![](image/1.jpg)
+![](十分钟看Java基础：集合_files/1.jpg)
 
 ### JDK 8
 1. HashMap -> 数组+链表+红黑树
@@ -170,6 +172,9 @@ Hashtable和HashMap有几个主要的不同：线程安全以及速度。仅在�
 	- 总结： JDK8中的实现也是锁分离的思想，它把锁分的比segment（JDK1.5）更细一些，只要hash不冲突，就不会出现并发获得锁的情况。
 	它首先使用无锁操作CAS插入头结点，如果插入失败，说明已经有别的线程插入头结点了，再次循环进行操作。如果头结点已经存在，
 	则通过synchronized获得头结点锁，进行后续的操作。性能比segment分段锁又再次提升。
+	- 当有resize扩容操作在进行中的时候，已经转移到新数组的bin节点在原来的位置被放进一个ForwardingNode结点。这保证了有resize操作正在进行中的时候，
+	不会阻塞对ConcurrentHashMap的读操作。例如，如果有一个调用get操作的线程，它的key的hash码映射到了一个ForwardingNode，那么它会从这个ForwadingNode结点
+	中的nextTable字段找到新数组的引用，然后再找到新数组nextTable的对应bin节点。ForwadingNode表示当前槽已经成功转移到新table，但是整个table还没有全部转移成功。
 
 ## 4. 说一下map的分类和常见情况
    - java为数据结构中的映射定义了一个接口 java.util.Map;它有四个实现类，分别是**HashMap**、**Hashtable**、**LinkedHashMap**和**TreeMap**.
