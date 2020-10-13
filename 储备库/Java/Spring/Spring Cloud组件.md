@@ -44,6 +44,10 @@ Ribbon是一个基于HTTP和TCP的客户端负载均衡器。
 
 ## 服务间调用：Feign
 
+[Feign 实现1](https://www.jianshu.com/p/ff79509b0962)
+
+[Feign 原理](https://blog.csdn.net/luanlouis/article/details/82821294)
+
 feign是声明式的web service客户端，它让微服务之间的调用变得更简单了，类似controller调用service。
 
 #### Fegin的关键机制是使用了动态代理
@@ -128,9 +132,61 @@ Hystrix使用**舱壁模式**实现线程池的隔离，它会为每一个依赖
 8. 走Fallback备用逻辑
 9. 返回请求响应
 
-## 家族网关：Gateway
+## 网关：Gateway 和 Zuul
 
+### 什么是网关
 
-## 邻居网关：Zuul
+网关的角色是作为一个 API 架构，用来保护、增强和控制对于 API 服务的访问。
+
+### 网关的作用/职能
+
+1. 请求接入：作为所有API接口服务的请求的接入点
+2. 业务聚合：作为所有后端业务服务的聚合点
+3. 中介策略：实现安全、验证、路由、过滤、流量控制等
+4. 统一管理：对所有API服务和策略进行管理
+
+spring-cloud-Gateway是spring-cloud的一个子项目。而zuul则是netflix公司的项目，只是spring将zuul集成在spring-cloud中使用而已。
+因为zuul2.0连续跳票和zuul1的性能表现不是很理想，所以催生了spring团队开发了Gateway项目。
+
+### Gateway
+
+Spring Cloud Gateway是Spring官方基于Spring 5.0，Spring Boot 2.0和Project Reactor等技术开发的网关，Spring Cloud Gateway
+旨在为微服务架构提供一种简单而有效的统一的API路由管理方式。Spring Cloud Gateway作为Spring Cloud生态系中的网关，目标是替代ZUUL，
+其不仅提供统一的路由方式，并且基于Filter链的方式提供了网关基本的功能，例如：安全，监控/埋点，和限流等。
+
+### Zuul
+
+[参考-Zuul1 和 Zuul2](https://www.cnblogs.com/davidwang456/p/10337441.html)
+
+### Zuul 与 Gateway 的区别
+
+1. 内部实现：
+
+ - gateway对比zuul多依赖了spring-webflux，在spring的支持下，功能更强大，内部实现了限流、负载均衡等，扩展性也更强，但同时也限制了仅适合于Spring Cloud套件
+ - zuul则可以扩展至其他微服务框架中，其内部没有实现限流、负载均衡等。
+
+2. 是否支持异步
+
+ - zuul仅支持同步
+ - gateway支持异步。理论上gateway则更适合于提高系统吞吐量（但不一定能有更好的性能），最终性能还需要通过严密的压测来决定
+
+3. 框架设计的角度
+　　
+ - gateway具有更好的扩展性，并且其已经发布了2.0.0的RELESE版本，稳定性也是非常好的
+
+4. 性能
+　　
+ - WebFlux 模块的名称是 spring-webflux，名称中的 Flux 来源于 Reactor 中的类 Flux。Spring webflux 有一个全新的非堵塞的函数式 Reactive Web 框架，可以用来构建异步的、非堵塞的、事件驱动的服务，在伸缩性方面表现非常好。使用非阻塞API。 Websockets得到支持，并且由于它与Spring紧密集成，所以将会是一个更好的 开发 体验。
+ - Zuul 1.x，是一个基于阻塞io的API Gateway。Zuul已经发布了Zuul 2.x，基于Netty，也是非阻塞的，支持长连接，但Spring Cloud暂时还没有整合计划。
+
+　　总的来说，在微服务架构，如果使用了Spring Cloud生态的基础组件，则Spring Cloud Gateway相比而言更加具备优势，单从流式编程+支持异步上就足以让开发者选择它了。
+　　对于小型微服务架构或是复杂架构（不仅包括微服务应用还有其他非Spring Cloud服务节点），zuul也是一个不错的选择。
+
+### Filter链 原理
+　　
+在一个web应用中，可以开发编写多个Filter，这些Filter组合起来称之为一个Filter链。web服务器根据Filter在web.xml文件中的注册顺序，
+决定先调用哪个Filter，当第一个Filter的doFilter方法被调用时，web服务器会创建一个代表Filter链的FilterChain对象传递给该方法。在doFilter
+方法中，开发人员如果调用了FilterChain对象的doFilter方法，则web服务器会检查FilterChain对象中是否还有filter，如果有，则调用第2个filter，
+如果没有，则调用目标资源。
 
 ## 配置中心：Config
