@@ -1,4 +1,3 @@
-@[TOC]
 
 ## 一、文件
 
@@ -18,7 +17,7 @@
 	
 #### 慢查询日志（slow log）
 
-  慢查询日志可帮助DBA定位可能存在问题的SQL语句。从而冲SQL语句的层面优化。
+  慢查询日志可帮助DBA定位可能存在问题的SQL语句。从而从SQL语句的层面优化。
 	
 #### 查询日志（log）
   
@@ -409,7 +408,7 @@ innoDB 中有两种锁，行锁与表锁。
 
 一个行记录可能不止一个快照数据，一般称这种多版本的快照数据技术为行多版本技术。由此带来的并发控制称为**多版本并发控制（Multi Version Concurrency Control，MVCC）**
 
-在事务隔离级别 READ COMMITTED 和 REPEATABLE READ（默认级别）下，InnoDB 使用的是一致性非锁定读。但是使用的快照数据版本且不相同。在 **READ COMMITTED** 下，非锁定一致性读总是读取被锁定行**最新一份**快照数据；而在**REPEATABLE READ**中，读取的是**事务开始时**行数据版本。
+在事务隔离级别 READ COMMITTED 和 REPEATABLE READ（默认级别）下，InnoDB 使用的是一致性非锁定读。但是使用的快照数据版本并不相同。在 **READ COMMITTED** 下，非锁定一致性读总是读取被锁定行**最新一份**快照数据；而在**REPEATABLE READ**中，读取的是**事务开始时**行数据版本。
 
 #### 一致性锁定读
 
